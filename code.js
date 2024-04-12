@@ -1,49 +1,57 @@
 const display = document.querySelector(".display");
 const buttons = document.querySelectorAll("button");
+const teclas = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "%", "/", "*", "-", "+", "Enter", "Backspace", "Escape", "Shift", "="];
 const specialChars = ["%", "*", "/", "-", "+", "="];
 let output = "";
 
-// Define function to calculate based on button clicked or key pressed.
-const calculate = (btnValue) => {
+// Define a função para calcular com base no botão clicado ou tecla pressionada.
+const calculate = (inputValue) => {
   display.focus();
-  if (btnValue === "=" && output !== "") {
-    // If output has '%', replace with '/100' before evaluating.
-    try {
-      output = eval(output.replace('%', "/100"));
-    } catch (error) {
-      output = "Error";
+
+  if (inputValue === "." && output.endsWith(".")) return;
+  
+
+  if (inputValue === "=" && output !== "") {
+    if (output.includes("/0")) {
+      output = "∞";
+    } else {
+      try {
+        output = eval(output.replace('%', "/100"));
+      } catch (error) {
+        output = "Error";
+      }
     }
-  } else if (btnValue === "AC") {
+  } else if (inputValue === "AC") {
     output = "";
-  } else if (btnValue === "DEL") {
-    // If DEL button is clicked or backspace pressed, remove the last character from the output.
+  } else if (inputValue === "DEL") {
     output = output.toString().slice(0, -1);
   } else {
-    // If output is empty and button is specialChars then return
-    if (output === "" && specialChars.includes(btnValue) && btnValue !== "-" && btnValue !== "%") return;
-    output += btnValue;
+    if (output === "" && specialChars.includes(inputValue) && inputValue !== "-" && inputValue !== "%") return;
+    output += inputValue;
   }
   display.value = output;
 };
 
-// Add event listener to buttons, call calculate() on click.
+// Adiciona um event listener para cada botão, chamando a função calculate()
 buttons.forEach((button) => {
   button.addEventListener("click", (e) => calculate(e.target.dataset.value));
 });
 
-// Add keyboard support
+// Adiciona um event listener para os botẽos do teclado.
 document.addEventListener('keydown', (e) => {
-  // Prevent the default action to stop typing inside the input field
-  if (["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "%", "/", "*", "-", "+", "Enter", "Backspace", "Escape", "Shift", "="].includes(e.key)) {
+  // Previne a ação padrão para evitar digitar dentro do campo de input.
+  if (teclas.includes(e.key)) {
     e.preventDefault();
   }
 
-  if (!["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "%", "/", "*", "-", "+", "Enter", "Backspace", "Escape", "Shift", "="].includes(e.key)) {
+  // Verifica se a tecla pressionada é válida.
+  if (!teclas.includes(e.key)) {
     output = "Error";
     display.value = output;
     return;
   }
 
+  // Executa a função calculate() com base na tecla pressionada.
   switch (e.key) {
     case '0':
     case '1':
@@ -72,7 +80,6 @@ document.addEventListener('keydown', (e) => {
     case 'Escape':
       calculate('AC');
       break;
-    // No default case needed
+    // Não é necessário um caso padrão
   }
 });
-
